@@ -1,5 +1,6 @@
 import React,{Component} from 'react';
 import ReactDOM from 'react-dom';
+import axios from 'axios';
 
 
 export default class SendDate extends Component{
@@ -9,16 +10,11 @@ export default class SendDate extends Component{
         this.state = {
             name:"",
             age:0,
-            file:[]
+            file:null
         }
 
         this.onSubmit = this.onSubmit.bind(this);
         // this.myName = this.myName(this);
-    }
-
-    myFile = e =>{
-        // console.log(e.target.files[0]);
-        this.setState({file:e.target.files[0]})
     }
 
     myAge = e => {
@@ -30,38 +26,49 @@ export default class SendDate extends Component{
         this.setState({name:e.target.value});
     }
 
+    myFile = e =>{
+        // console.log(e.target.files[0]);
+        this.setState({file:e.target.files[0]})
+    }
+
     onSubmit = (e) =>{
         e.preventDefault();
-        let data = {
-            name:this.state.name,
-            age: this.state.age,
-            file:this.state.file
-        }
+        const data = new FormData(); 
+     
+        data.append("file",this.state.file);
+        data.append("name",this.state.name);
+        data.append("age",this.state.age); 
+    
         // console.log("Submiteed",data);
-        fetch('http://localhost:8080/inputReceived',{
-            method:'POST',
-            body:JSON.stringify(data)
+
+        axios.post("http://localhost:8081/inputReceived", data, { // receive two parameter endpoint url ,form data 
         })
-        .then(respose => Response.json())
-        .then((value) =>{
-            console.log("Send Successfully",value)
+        .then(res => {
+        console.log(res.statusText)
         })
-        .catch(err => console.log("error",err));
+
+        // fetch('http://localhost:8081/inputReceived',{
+        //     mode: "no-cors",
+        //     method:"POST",
+        //     // headers: {
+        //     //     "Content-Type": "multipart/form-data"
+        //     // },
+        //     body:JSON.stringify(data)
+        // })
+        // .then(response => response.text())
+        // .then((value) =>{
+        //     console.log("Send Successfully",value)
+        // })
+        // .catch(err => console.log("error",err));
     }
 
 
 
     render(){
-        let header = '';
-        if(this.state.name){
-        header = <h1>{this.state.age}</h1>
-        }
-
         return(
             <div className='sendData'>
-                {header}
                 <div>
-                    <form onSubmit={this.onSubmit}>
+                    <form onSubmit={this.onSubmit} encType="multipart/form-data">
                         <label>
                             <h3>Name:</h3>  
                             <input type="text" onChange={this.myName} required/>
@@ -72,7 +79,7 @@ export default class SendDate extends Component{
                         </label>
                         <label>
                             file:
-                                                                        {/*Add required below  */}
+                            {/*Add required below  */}
                             <input type="file" name="file" onChange = {this.myFile}/>   
                         </label>
                         <input type="submit" value="Submit" />
