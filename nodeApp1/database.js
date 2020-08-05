@@ -19,7 +19,6 @@ stealthSchema.on('index', function(error) {
 
 
 exports.insertData = (name,age,file)=>{
-    console.log("reached here......................................",file);
     const newData = new stealth({
         name:name,
         age:age,

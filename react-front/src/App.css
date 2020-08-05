@@ -36,3 +36,12 @@
     transform: rotate(360deg);
   }
 }
+
+.sendData{
+  margin-top: 300px;
+  margin-bottom: 100px;
+}
+
+.padd{
+  padding-right: 20px;
+}

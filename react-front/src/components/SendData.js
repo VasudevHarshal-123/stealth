@@ -14,7 +14,6 @@ export default class SendDate extends Component{
         }
 
         this.onSubmit = this.onSubmit.bind(this);
-        // this.myName = this.myName(this);
     }
 
     myAge = e => {
@@ -22,12 +21,10 @@ export default class SendDate extends Component{
     }
 
     myName = (e) =>{
-        // console.log("dcdc",e.target.value);
         this.setState({name:e.target.value});
     }
 
     myFile = e =>{
-        // console.log(e.target.files[0]);
         this.setState({file:e.target.files[0]})
     }
 
@@ -39,27 +36,11 @@ export default class SendDate extends Component{
         data.append("name",this.state.name);
         data.append("age",this.state.age); 
     
-        // console.log("Submiteed",data);
-
-        axios.post("http://localhost:8081/inputReceived", data, { // receive two parameter endpoint url ,form data 
-        })
+        axios.post("http://localhost:8081/inputReceived", data, {       })
         .then(res => {
         console.log(res.statusText)
         })
-
-        // fetch('http://localhost:8081/inputReceived',{
-        //     mode: "no-cors",
-        //     method:"POST",
-        //     // headers: {
-        //     //     "Content-Type": "multipart/form-data"
-        //     // },
-        //     body:JSON.stringify(data)
-        // })
-        // .then(response => response.text())
-        // .then((value) =>{
-        //     console.log("Send Successfully",value)
-        // })
-        // .catch(err => console.log("error",err));
+       
     }
 
 
@@ -69,18 +50,17 @@ export default class SendDate extends Component{
             <div className='sendData'>
                 <div>
                     <form onSubmit={this.onSubmit} encType="multipart/form-data">
-                        <label>
-                            <h3>Name:</h3>  
+                        <label className="padd">
+                            Name: 
                             <input type="text" onChange={this.myName} required/>
                         </label>
-                        <label>
+                        <label className="padd">
                             Age:
                             <input type="text" name="age" onChange={this.myAge} required/>
                         </label>
-                        <label>
+                        <label className="padd">
                             file:
-                            {/*Add required below  */}
-                            <input type="file" name="file" onChange = {this.myFile}/>   
+                            <input type="file" name="file" onChange = {this.myFile} required/>   
                         </label>
                         <input type="submit" value="Submit" />
                     </form>

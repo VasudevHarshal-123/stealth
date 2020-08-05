@@ -1,12 +1,11 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const multer = require('multer');
-const upload = multer();
 const mongoose = require('mongoose'); 
-const stealth  = require('./database'); 
+const flat = require('./database'); 
 const amqp = require('amqplib/callback_api');
 let url = 'amqp://cffclshw:ebQfe-yTKh4OKcKRYAVrVOf8llSQfzm0@lionfish.rmq.cloudamqp.com/cffclshw';
+
 // mongoose.connect('mongodb://localhost:27017/myapp', {useNewUrlParser: true})
 mongoose.connect('mongodb+srv://Vasudev_Harshal:fJKVwVfCrVghYJfI@cluster0-7ljo4.azure.mongodb.net/stealth?retryWrites=true&w=majority',{useNewUrlParser: true})
     .then(()=>console.log("connected to database..."))
@@ -19,39 +18,40 @@ app.use((req,res,next)=>{
     next();
 });
 
+
 app.use(bodyParser.json());
 app.use(bodyParser.text());
 app.use(bodyParser.urlencoded({extended: true}));
 
+var ch=null;
 
-
-
-app.post('/inputReceived',upload.single('file'),(req,res,next)=>{
-    let file = req.file;
-    let name = req.body.name;
-    let age = req.body.age;
-
-    stealth.insertData(name,age,file)
-    .then(value=>{console.log("Saved")
-        var ch = null;
-        amqp.connect(url, (err, conn)=> {
-            conn.createChannel((err, channel)=> {
-            ch = channel;
-            let queue = 'CloudQueue';
-            let msg = 'Hello world!';
-            ch.assertQueue(queue,{durable:false})
-            ch.sendToQueue(queue,Buffer.from(msg));
-            });
-        });
+app.get('/',(req,res)=>{
+    
+    let date = new Date(Date.now());
+    date.setHours(0,0,0,0); 
+    date=date.toISOString();
+    let count=flat.getCount(date);
+    count.then(data=>{
+        res.send(JSON.stringify(data));
+        res.end();
     })
-    .catch(err=>console.log(err))
+ });
 
-    res.send('received');
+
+amqp.connect(url, (err, conn)=> {
+    conn.createChannel((err, ch)=> {
+        // ch = channel;
+        let queue = 'CloudQueue';
+        ch.assertQueue(queue,{durable:false})
+        ch.consume(queue,(message)=>{
+            console.log("msg received:",message.content.toString());
+            let date = new Date(Date.now());
+            date.setHours(0,0,0,0); 
+            date=date.toISOString();
+            flat.insertData(date);
+        },{noAck:true});
+    });
 });
 
-
-
-
-app.listen(8081,()=>console.log("listening to 8080..."));
-
+app.listen(8080,()=>console.log("listening to 8080..."));
 
